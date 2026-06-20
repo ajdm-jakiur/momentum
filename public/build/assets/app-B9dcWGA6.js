@@ -1,0 +1,1 @@
+`serviceWorker`in navigator&&window.addEventListener(`load`,()=>{navigator.serviceWorker.register(`/sw.js`,{scope:`/`}).then(e=>{console.log(`[SW] Registered, scope:`,e.scope)}).catch(e=>{console.warn(`[SW] Registration failed:`,e)})});
