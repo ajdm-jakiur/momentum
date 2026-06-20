@@ -26,6 +26,7 @@ return new class extends Migration
             $table->boolean('is_complete')->default(false);
             $table->timestamp('completed_at')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
