@@ -1,0 +1,344 @@
+{
+  "sector": "systems-engineering",
+  "roadmap": { "title": "0.1% Engineer Roadmap v2", "description": "130 weeks - 21 books - 31 projects - 40 community actions - learn in public", "total_weeks": 130, "color": "#e85d26" },
+  "phases": [
+    {
+      "title": "Phase 1 — Systems Foundation",
+      "duration_label": "Months 1–9",
+      "description": "Build the low-level foundation: C, computer architecture, OS fundamentals, math for AI.",
+      "milestone": "Can read x86 assembly, understand cache behavior, explain virtual memory, derive backprop by hand, explain packet journey from code to wire, debug race conditions. 50+ Stack Overflow answers across C and Rust. Blog has 5+ posts. Active in 2+ online communities.",
+      "blocks": [
+        {
+          "title": "Block A: C Programming & Memory Model",
+          "weeks_label": "Weeks 1–8",
+          "icon": "💻",
+          "pattern_text": "Pointers, manual memory management, structs/unions, file I/O — the mental model every later systems topic builds on.",
+          "resources": [
+            { "name": "C Programming: A Modern Approach", "author_or_type": "K.N. King", "note": "THE C book. Do every exercise.", "kind": "book" },
+            { "name": "The C Programming Language", "author_or_type": "Kernighan & Ritchie", "note": "Read after King's book as a second pass. Short, dense, legendary.", "kind": "book" }
+          ],
+          "daily_notes": [
+            "Day pattern: 2 hrs C study + exercises → 1 hr coding practice → 1 hr review/notes",
+            "Week 1–2: Data types, control flow, functions, arrays, strings",
+            "Week 3–4: Pointers deep dive — pointer arithmetic, arrays vs pointers, function pointers",
+            "Week 5–6: Structs, unions, dynamic memory (malloc/calloc/realloc/free), linked lists in C",
+            "Week 7–8: File I/O, preprocessor, header files, multi-file projects, Makefiles"
+          ],
+          "items": [
+            { "kind": "project", "title": "Build a dynamic array library (like C++ vector) from scratch" },
+            { "kind": "project", "title": "Implement a hash table with collision handling" },
+            { "kind": "project", "title": "Build a simple text editor (like kilo)" },
+            { "kind": "community", "title": "Reddit", "body": "Join r/C_Programming, r/learnprogramming. Answer beginner C questions. Post hash table implementation for review.", "meta": { "platform": "Reddit", "where": "reddit.com/r/C_Programming" } },
+            { "kind": "community", "title": "Stack Overflow", "body": "Answer C questions tagged [c] [pointers] [memory-management]. Aim for 3 answers/week.", "meta": { "platform": "Stack Overflow", "where": "stackoverflow.com/questions/tagged/c" } },
+            { "kind": "community", "title": "GitHub", "body": "Push EVERY project publicly from day 1. Write proper READMEs. Start commit streak.", "meta": { "platform": "GitHub", "where": "github.com" } },
+            { "kind": "community", "title": "Twitter/X", "body": "Post daily 'Today I learned' threads about C. Tag #100DaysOfCode #SystemsProgramming.", "meta": { "platform": "Twitter/X", "where": "twitter.com" } }
+          ]
+        },
+        {
+          "title": "Block B: Computer Architecture & Systems",
+          "weeks_label": "Weeks 9–16",
+          "icon": "🏗️",
+          "pattern_text": "Bits, x86-64 assembly, memory hierarchy, linking, virtual memory — read CS:APP, build a CPU in Nand2Tetris.",
+          "resources": [
+            { "name": "Computer Systems: A Programmer's Perspective (CS:APP)", "author_or_type": "Bryant & O'Hallaron", "note": "THE systems book. Chapters 1–9 are essential. Do the labs.", "kind": "book" },
+            { "name": "Nand2Tetris", "author_or_type": "Nisan & Schocken", "note": "Free online course. Build a computer from logic gates up.", "kind": "course", "url": "https://nand2tetris.org" }
+          ],
+          "daily_notes": [
+            "Day pattern: 2 hrs CS:APP reading + labs → 1.5 hrs Nand2Tetris → 0.5 hr review",
+            "Week 9–10: Data representation — bits, integers, floating point (CS:APP Ch 2)",
+            "Week 11–12: Machine-level programming — x86-64 assembly, stack frames (CS:APP Ch 3)",
+            "Week 13–14: Memory hierarchy — caches, locality, cache-friendly code (CS:APP Ch 5–6)",
+            "Week 15–16: Linking, exceptional control flow, virtual memory (CS:APP Ch 7–9)"
+          ],
+          "items": [
+            { "kind": "project", "title": "Complete Nand2Tetris (build CPU, assembler, VM, compiler)" },
+            { "kind": "project", "title": "CS:APP malloc lab — build your own memory allocator" },
+            { "kind": "project", "title": "Write a disassembler for a subset of x86 instructions" },
+            { "kind": "community", "title": "Blog", "body": "Write first blog post: 'What I learned building a computer from scratch (Nand2Tetris)'.", "meta": { "platform": "Blog", "where": "dev.to or hashnode.dev" } },
+            { "kind": "community", "title": "Reddit", "body": "Join r/computerscience, r/lowlevel. Share Nand2Tetris progress. Review CS:APP lab solutions.", "meta": { "platform": "Reddit", "where": "reddit.com/r/lowlevel" } },
+            { "kind": "community", "title": "Discord", "body": "Join Nand2Tetris Discord and CS study group servers. Help others on labs.", "meta": { "platform": "Discord", "where": "Nand2Tetris Discord / OSSU Discord" } }
+          ]
+        },
+        {
+          "title": "Block C: Mathematics for AI & Systems",
+          "weeks_label": "Weeks 9–20 (parallel)",
+          "icon": "📐",
+          "pattern_text": "Linear algebra → multivariate calculus → probability/statistics, implemented from scratch in C, not just watched.",
+          "resources": [
+            { "name": "Mathematics for Machine Learning", "author_or_type": "Deisenroth, Faisal & Ong", "note": "Free PDF at mml-book.github.io.", "kind": "book" },
+            { "name": "Essence of Linear Algebra", "author_or_type": "3Blue1Brown / Grant Sanderson", "note": "YouTube series. Watch FIRST.", "kind": "video" },
+            { "name": "MIT OCW 18.06 (Linear Algebra)", "author_or_type": "Gilbert Strang", "note": "Free lecture videos on MIT OCW.", "kind": "course" }
+          ],
+          "daily_notes": [
+            "Day pattern: 1.5 hrs math study → 0.5 hr problem sets (parallel with Block B/D)",
+            "Week 9–12: Linear algebra — vectors, matrices, eigenvalues, SVD, PCA",
+            "Week 13–16: Multivariate calculus — gradients, Jacobians, chain rule, optimization",
+            "Week 17–20: Probability & statistics — Bayes theorem, distributions, MLE, MAP"
+          ],
+          "items": [
+            { "kind": "project", "title": "Implement matrix operations from scratch in C (no libraries)" },
+            { "kind": "project", "title": "Build a linear regression solver using gradient descent in C" },
+            { "kind": "project", "title": "Implement PCA from scratch and visualize dimensionality reduction" },
+            { "kind": "community", "title": "Twitter/X", "body": "Create visual threads explaining math concepts: 'How SVD actually works'.", "meta": { "platform": "Twitter/X", "where": "twitter.com" } },
+            { "kind": "community", "title": "Reddit", "body": "r/learnmath, r/MachineLearning. Answer linear algebra and probability questions.", "meta": { "platform": "Reddit", "where": "reddit.com/r/learnmath" } },
+            { "kind": "community", "title": "Blog", "body": "Write: 'The math behind ML, explained for developers who hate math.'", "meta": { "platform": "Blog", "where": "dev.to or hashnode.dev" } }
+          ]
+        },
+        {
+          "title": "Block D: Operating Systems & Networking",
+          "weeks_label": "Weeks 17–28",
+          "icon": "🌐",
+          "pattern_text": "Processes/threads/scheduling, paging, concurrency primitives, then sockets/TCP/HTTP from raw syscalls.",
+          "resources": [
+            { "name": "Operating Systems: Three Easy Pieces (OSTEP)", "author_or_type": "Arpaci-Dusseau", "note": "Free at pages.cs.wisc.edu/~remzi/OSTEP/", "kind": "book" },
+            { "name": "Beej's Guide to Network Programming", "author_or_type": "Brian Hall", "note": "Free online. The socket programming classic.", "kind": "guide" },
+            { "name": "Computer Networking: A Top-Down Approach", "author_or_type": "Kurose & Ross", "note": "TCP/IP, HTTP, DNS chapters.", "kind": "book" }
+          ],
+          "daily_notes": [
+            "Day pattern: 2 hrs OS/networking study → 1.5 hrs project work → 0.5 hr review",
+            "Week 17–19: Processes, threads, scheduling, context switching",
+            "Week 20–22: Memory management — paging, segmentation, TLBs",
+            "Week 23–25: Concurrency — locks, semaphores, condition variables, deadlock",
+            "Week 26–28: Networking — TCP/IP, sockets, HTTP from scratch"
+          ],
+          "items": [
+            { "kind": "project", "title": "Build a Unix shell with pipes, redirection, job control" },
+            { "kind": "project", "title": "Implement a thread pool in C with mutex/condvar" },
+            { "kind": "project", "title": "Build an HTTP/1.1 server from raw sockets in C" },
+            { "kind": "project", "title": "Write a simple TCP chat server (multi-client)" },
+            { "kind": "community", "title": "Hacker News", "body": "Read HN daily. Comment on systems programming posts with substance.", "meta": { "platform": "Hacker News", "where": "news.ycombinator.com" } },
+            { "kind": "community", "title": "Reddit", "body": "r/systems, r/networking, r/netsec. Post 'Show Reddit' on HTTP server architecture.", "meta": { "platform": "Reddit", "where": "reddit.com/r/systems" } },
+            { "kind": "community", "title": "Blog", "body": "Write: 'I built an HTTP server from raw sockets — here's what I learned about TCP.'", "meta": { "platform": "Blog", "where": "Your blog" } }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Phase 2 — Rust & Systems Depth",
+      "duration_label": "Months 7–18",
+      "description": "Learn Rust, build serious systems projects, enter open-source seriously.",
+      "milestone": "Can write idiomatic Rust, published a crate, active in Rust Discord. Can explain how Postgres executes a query end-to-end, understand CAP theorem practically. 3+ merged PRs in recognized projects, blog has 5+ technical posts, active in 3+ project communities.",
+      "blocks": [
+        {
+          "title": "Block E: Rust Programming",
+          "weeks_label": "Weeks 29–40",
+          "icon": "🦀",
+          "pattern_text": "Ownership/borrowing/lifetimes as the core mental model, then concurrency, unsafe, and the crate ecosystem.",
+          "resources": [
+            { "name": "The Rust Programming Language", "author_or_type": "Klabnik & Nichols", "note": "doc.rust-lang.org/book/", "kind": "book" },
+            { "name": "Rustlings", "author_or_type": "rust-lang", "note": "Interactive exercises.", "kind": "course", "url": "https://github.com/rust-lang/rustlings" },
+            { "name": "Programming Rust, 2nd Edition", "author_or_type": "Blandy, Orendorff & Tindall", "note": "Deeper reference.", "kind": "book" },
+            { "name": "Rust for Rustaceans", "author_or_type": "Jon Gjengset", "note": "Advanced patterns. Read after 2–3 months.", "kind": "book", "is_required": false }
+          ],
+          "daily_notes": [
+            "Day pattern: 2 hrs Rust study → 2 hrs Rust project → Rustlings exercises",
+            "Week 29–31: Ownership, borrowing, lifetimes — the core mental model",
+            "Week 32–34: Enums, pattern matching, error handling, traits, generics",
+            "Week 35–37: Concurrency — threads, channels, Arc/Mutex, async/await",
+            "Week 38–40: Unsafe Rust, FFI, macros, crate ecosystem"
+          ],
+          "items": [
+            { "kind": "project", "title": "Port your C hash table to Rust — feel the ownership system" },
+            { "kind": "project", "title": "Build a key-value store (like mini-Redis) with networking" },
+            { "kind": "project", "title": "Build a CLI tool and publish to crates.io" },
+            { "kind": "project", "title": "Implement a log-structured merge tree (LSM tree)" },
+            { "kind": "community", "title": "Rust Discord", "body": "Join official Rust Discord and Users Forum. Answer beginner questions in #beginners.", "meta": { "platform": "Rust Community", "where": "discord.gg/rust-lang" } },
+            { "kind": "community", "title": "This Week in Rust", "body": "Read the weekly newsletter. Submit your blog posts and crate releases.", "meta": { "platform": "This Week in Rust", "where": "this-week-in-rust.org" } },
+            { "kind": "community", "title": "crates.io", "body": "Publish your CLI tool with good docs. Aim for 1 published crate by week 40.", "meta": { "platform": "crates.io", "where": "crates.io" } }
+          ]
+        },
+        {
+          "title": "Block F: Database Internals & Distributed Systems",
+          "weeks_label": "Weeks 41–52",
+          "icon": "🗄️",
+          "pattern_text": "Storage engines (B-trees/LSM/WAL), then replication/consensus/partitioning, then build a bytecode interpreter.",
+          "resources": [
+            { "name": "Designing Data-Intensive Applications", "author_or_type": "Martin Kleppmann", "note": "THE distributed systems book.", "kind": "book" },
+            { "name": "Database Internals", "author_or_type": "Alex Petrov", "note": "Storage engines — B-trees, LSM, WAL.", "kind": "book" },
+            { "name": "Crafting Interpreters", "author_or_type": "Robert Nystrom", "note": "craftinginterpreters.com — build a language.", "kind": "book" }
+          ],
+          "daily_notes": [
+            "Day pattern: 2 hrs reading → 2 hrs project → 0.5 hr open-source browsing",
+            "Week 41–44: Storage engines — B-trees, LSM trees, WAL, buffer pool",
+            "Week 45–48: Distributed systems — replication, consensus, Raft, partitioning",
+            "Week 49–50: Interpreter/compiler (Crafting Interpreters Part II)",
+            "Week 51–52: Transactions, MVCC, query planning"
+          ],
+          "items": [
+            { "kind": "project", "title": "Build a simple database engine in Rust with B-tree storage" },
+            { "kind": "project", "title": "Implement Raft consensus (simplified version)" },
+            { "kind": "project", "title": "Build a bytecode interpreter (Lox from Crafting Interpreters)" },
+            { "kind": "community", "title": "r/databasedevelopment", "body": "Share your Rust database engine. Get feedback from people building TiKV, DuckDB, etc.", "meta": { "platform": "Reddit", "where": "reddit.com/r/databasedevelopment" } },
+            { "kind": "community", "title": "Distributed Systems Reading Group", "body": "Join the reading group on YouTube/Discord. Participate actively in paper discussions.", "meta": { "platform": "Discord", "where": "Search 'distributed systems reading group discord'" } },
+            { "kind": "community", "title": "Blog", "body": "Write: 'I built a database from scratch in Rust — here's how storage engines actually work.'", "meta": { "platform": "Blog", "where": "Your blog" } }
+          ]
+        },
+        {
+          "title": "Block G: Open Source Entry",
+          "weeks_label": "Weeks 40–52 (parallel)",
+          "icon": "🌱",
+          "pattern_text": "Pick 2–3 target projects, read CONTRIBUTING.md, ship small fixes first, graduate to meaningful contributions.",
+          "resources": [
+            { "name": "Working in Public", "author_or_type": "Nadia Eghbal", "note": "Understanding open-source dynamics.", "kind": "book" }
+          ],
+          "daily_notes": [
+            "30–60 min daily reading codebases of target projects",
+            "Week 40–44: Pick 2–3 projects (llama.cpp, Tokio, Hyper, vLLM). Read CONTRIBUTING.md. Set up locally.",
+            "Week 45–48: First PRs — docs fixes, test additions, small bug fixes.",
+            "Week 49–52: Graduate to meaningful contributions — features, performance work."
+          ],
+          "items": [
+            { "kind": "project", "title": "Land at least 3 merged PRs by end of month 12" },
+            { "kind": "project", "title": "Write blog post: 'What I learned building a database in Rust'" },
+            { "kind": "community", "title": "Target Project Discord/Zulip/Slack", "body": "Join the community for your target projects. Lurk 2 weeks, then engage with a specific issue.", "meta": { "platform": "Project Community", "where": "Project-specific (check CONTRIBUTING.md)" } },
+            { "kind": "community", "title": "GitHub Profile", "body": "Pin best 6 repos. Write READMEs that explain WHY, with architecture diagrams.", "meta": { "platform": "GitHub", "where": "github.com/your-profile" } },
+            { "kind": "community", "title": "Dev Twitter/X", "body": "Share the story when a PR gets merged: 'My first contribution to [project]'.", "meta": { "platform": "Twitter/X", "where": "twitter.com" } }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Phase 3 — AI Infrastructure & ML Systems",
+      "duration_label": "Months 13–24",
+      "description": "Python mastery, ML fundamentals, GPU programming, AI systems engineering.",
+      "milestone": "Can implement any classic ML algorithm from math alone, explain PyTorch autograd at C++ level, write and optimize CUDA kernels. Kaggle/HF Hub profiles active, known in r/ML and GPU Mode, contributions to tinygrad or Triton. 12+ blog posts.",
+      "blocks": [
+        {
+          "title": "Block H: Python & ML Foundations",
+          "weeks_label": "Weeks 53–64",
+          "icon": "🐍",
+          "pattern_text": "Python internals + NumPy vectorization, then classic ML (regression/trees/ensembles) and backprop from scratch.",
+          "resources": [
+            { "name": "Fluent Python, 2nd Edition", "author_or_type": "Luciano Ramalho", "note": "Python internals.", "kind": "book" },
+            { "name": "CPython Internals", "author_or_type": "Anthony Shaw", "note": "How the interpreter works.", "kind": "book" },
+            { "name": "Hands-On Machine Learning, 3rd Ed", "author_or_type": "Aurélien Géron", "note": "Best practical ML book.", "kind": "book" }
+          ],
+          "daily_notes": [
+            "Day pattern: 1.5 hrs Python deep study → 2 hrs ML study + coding → 1 hr project",
+            "Week 53–55: Python internals — data model, iterators, generators, decorators, metaclasses",
+            "Week 56–58: NumPy internals, vectorization, memory layout; pandas for data",
+            "Week 59–61: ML fundamentals — regression, classification, trees, SVMs, ensembles",
+            "Week 62–64: Neural network foundations — perceptrons, backprop, SGD, regularization"
+          ],
+          "items": [
+            { "kind": "project", "title": "Build a neural network from scratch in NumPy (no PyTorch/TF)" },
+            { "kind": "project", "title": "Implement gradient descent variants (SGD, Adam, RMSProp) from scratch" },
+            { "kind": "project", "title": "Build an ML pipeline for a real document dataset" },
+            { "kind": "community", "title": "Kaggle", "body": "Study winning solutions, then enter one competition with a well-documented notebook.", "meta": { "platform": "Kaggle", "where": "kaggle.com" } },
+            { "kind": "community", "title": "r/MachineLearning", "body": "Read top posts weekly, comment with substantive analysis on new papers.", "meta": { "platform": "Reddit", "where": "reddit.com/r/MachineLearning" } },
+            { "kind": "community", "title": "Blog", "body": "Write: 'Building a neural network from scratch — what PyTorch hides from you.'", "meta": { "platform": "Blog", "where": "Your blog" } }
+          ]
+        },
+        {
+          "title": "Block I: Deep Learning & PyTorch Internals",
+          "weeks_label": "Weeks 65–76",
+          "icon": "🔥",
+          "pattern_text": "CNN/RNN/Transformer from scratch, training at scale, then PyTorch's C++ autograd internals.",
+          "resources": [
+            { "name": "Deep Learning", "author_or_type": "Goodfellow, Bengio & Courville", "note": "deeplearningbook.org — theory reference.", "kind": "book" },
+            { "name": "PyTorch source code", "author_or_type": "Meta", "note": "Read the C++ backend, not just Python API.", "kind": "reference" },
+            { "name": "Neural Networks: Zero to Hero", "author_or_type": "Andrej Karpathy", "note": "YouTube series. Build GPT from scratch.", "kind": "video" }
+          ],
+          "daily_notes": [
+            "Day pattern: 2 hrs deep learning study → 2 hrs implementation → 0.5 hr paper reading",
+            "Week 65–67: CNNs, RNNs, LSTMs — implement each from scratch",
+            "Week 68–70: Transformers — attention, positional encoding, build GPT",
+            "Week 71–73: Training at scale — mixed precision, gradient accumulation, distributed",
+            "Week 74–76: PyTorch internals — autograd, dispatcher, TorchScript, C++ extensions"
+          ],
+          "items": [
+            { "kind": "project", "title": "Build a transformer from scratch (follow Karpathy's nanoGPT)" },
+            { "kind": "project", "title": "Write a PyTorch C++ extension for a custom operation" },
+            { "kind": "project", "title": "Fine-tune an LLM on a domain-specific dataset" },
+            { "kind": "project", "title": "Build a RAG system for document Q&A" },
+            { "kind": "community", "title": "PyTorch Forums & Discord", "body": "Answer questions about autograd, custom extensions, training issues.", "meta": { "platform": "PyTorch Forums", "where": "discuss.pytorch.org" } },
+            { "kind": "community", "title": "Hugging Face Community", "body": "Publish fine-tuned model on HF Hub with a proper model card.", "meta": { "platform": "Hugging Face", "where": "huggingface.co" } },
+            { "kind": "community", "title": "Blog", "body": "Write: 'Inside PyTorch: how autograd actually works at the C++ level.'", "meta": { "platform": "Blog", "where": "Your blog" } }
+          ]
+        },
+        {
+          "title": "Block J: GPU Programming & ML Compilers",
+          "weeks_label": "Weeks 77–88",
+          "icon": "⚡",
+          "pattern_text": "GPU architecture and CUDA kernels, optimizing ML kernels (matmul/attention), then ML compiler basics.",
+          "resources": [
+            { "name": "Programming Massively Parallel Processors", "author_or_type": "Kirk & Hwu", "note": "The CUDA textbook.", "kind": "book" },
+            { "name": "CUDA by Example", "author_or_type": "Sanders & Kandrot", "note": "Practical CUDA intro.", "kind": "book" },
+            { "name": "GPU Gems (NVIDIA)", "author_or_type": "Various", "note": "Free at developer.nvidia.com.", "kind": "reference" }
+          ],
+          "daily_notes": [
+            "Day pattern: 2 hrs GPU/CUDA study → 2 hrs implementation → 0.5 hr research papers",
+            "Week 77–79: GPU architecture — warps, SMs, memory hierarchy, occupancy",
+            "Week 80–82: CUDA kernels, shared memory, atomic operations, streams",
+            "Week 83–85: Optimizing ML kernels — matmul, attention, flash attention",
+            "Week 86–88: ML compilers — TVM, Triton (OpenAI), MLIR basics"
+          ],
+          "items": [
+            { "kind": "project", "title": "Write a CUDA matrix multiplication kernel (naive → tiled → optimized)" },
+            { "kind": "project", "title": "Implement flash attention in CUDA or Triton" },
+            { "kind": "project", "title": "Build a simple ML compiler pass that fuses operations" },
+            { "kind": "project", "title": "Contribute to Triton or tinygrad" },
+            { "kind": "community", "title": "NVIDIA Developer Forums", "body": "Answer CUDA optimization questions.", "meta": { "platform": "NVIDIA Forums", "where": "forums.developer.nvidia.com" } },
+            { "kind": "community", "title": "tinygrad community", "body": "Get a PR merged into tinygrad's Discord-active, small-enough-to-matter codebase.", "meta": { "platform": "GitHub/Discord", "where": "github.com/tinygrad/tinygrad" } },
+            { "kind": "community", "title": "GPU Mode Discord", "body": "Join GPU Mode — reading groups on CUDA optimization and flash attention papers.", "meta": { "platform": "Discord", "where": "discord.gg/gpumode" } }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "Phase 4 — Mastery & Impact",
+      "duration_label": "Months 24–36",
+      "description": "Major projects, deep open-source work, specialization, and thought leadership.",
+      "milestone": "Recognized contributor in a major AI infra project, conference talk delivered, mentoring others. 15+ blog posts, capstone complete, GitHub profile demonstrates full systems + AI capability — top 0.1% territory.",
+      "blocks": [
+        {
+          "title": "Block K: AI Systems Engineering",
+          "weeks_label": "Weeks 89–104",
+          "icon": "🚀",
+          "pattern_text": "Model serving (ONNX/TensorRT/vLLM), quantization/pruning/distillation, then inference optimization at the systems level.",
+          "resources": [
+            { "name": "Designing Machine Learning Systems", "author_or_type": "Chip Huyen", "note": "Production ML lifecycle.", "kind": "book" },
+            { "name": "Efficient Deep Learning (MIT)", "author_or_type": "Song Han", "note": "Compression, quantization, pruning.", "kind": "course" },
+            { "name": "System Design Interview Vol 2", "author_or_type": "Alex Xu", "note": "ML system design chapter.", "kind": "book" }
+          ],
+          "daily_notes": [
+            "Day pattern: 2 hrs research/study → 3 hrs project + open-source work",
+            "Week 89–93: Model serving — ONNX Runtime, TensorRT, vLLM internals, KV cache",
+            "Week 94–98: Quantization (INT8/4, GPTQ, AWQ), pruning, distillation",
+            "Week 99–104: Inference optimization — batching, speculative decoding, PagedAttention"
+          ],
+          "items": [
+            { "kind": "project", "title": "Build an inference server in Rust that serves ONNX models" },
+            { "kind": "project", "title": "Implement INT8 quantization from scratch" },
+            { "kind": "project", "title": "Land a feature-level contribution to vLLM or llama.cpp" },
+            { "kind": "project", "title": "Build a model deployment pipeline with monitoring" },
+            { "kind": "community", "title": "vLLM / llama.cpp communities", "body": "Aim for reviewer status on PRs. Help triage issues.", "meta": { "platform": "GitHub", "where": "github.com/vllm-project/vllm" } },
+            { "kind": "community", "title": "MLOps Community", "body": "Join mlops.community on Slack. Present at virtual meetups.", "meta": { "platform": "Slack", "where": "mlops.community" } },
+            { "kind": "community", "title": "Conference Submission", "body": "Submit a talk proposal: 'Building high-performance AI inference in Rust.'", "meta": { "platform": "Conference CFP", "where": "Conference CFPs" } },
+            { "kind": "community", "title": "Mentoring", "body": "Start mentoring 2–3 junior developers. Build a small cohort following a similar path.", "meta": { "platform": "Mentoring", "where": "Local universities, online communities" } }
+          ]
+        },
+        {
+          "title": "Block L: Capstone & Portfolio",
+          "weeks_label": "Weeks 105–130",
+          "icon": "🏁",
+          "pattern_text": "This phase is about OUTPUT — demonstrate mastery through a real capstone, not more study.",
+          "resources": [
+            { "name": "Weekly ML systems papers", "author_or_type": "arXiv", "note": "FlashAttention, vLLM, Megatron-LM, etc.", "kind": "reference" }
+          ],
+          "daily_notes": [
+            "Day pattern: 4–5 hrs on capstone project + open-source + writing"
+          ],
+          "items": [
+            { "kind": "project", "title": "CAPSTONE: high-performance AI document processing engine (Rust + Python + CUDA)" },
+            { "kind": "project", "title": "Custom tokenizer, efficient embedding engine, vector search, Rust API server" },
+            { "kind": "project", "title": "Reach maintainer/core contributor status in at least one major project" },
+            { "kind": "community", "title": "Personal Brand Consolidation", "body": "Personal website, 1000+ Twitter followers, blog with 15+ ranking posts, 100+ SO answers.", "meta": { "platform": "Personal Site", "where": "Your personal domain" } },
+            { "kind": "community", "title": "Speaking & Teaching", "body": "Give 2–3 talks. Start a YouTube channel with 'let's build X from scratch' videos.", "meta": { "platform": "YouTube/Meetup", "where": "youtube.com, meetup.com" } },
+            { "kind": "community", "title": "Give Back", "body": "Write 'The complete systems programming roadmap' and submit to Hacker News.", "meta": { "platform": "Blog + HN", "where": "Your blog + Hacker News submission" } }
+          ]
+        }
+      ]
+    }
+  ]
+}

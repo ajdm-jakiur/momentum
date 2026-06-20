@@ -1,0 +1,94 @@
+{
+  "sector": "systems-engineering",
+  "roadmap": {
+    "title": "0.1% Engineer Roadmap v2",
+    "description": "Build the low-level foundation: C, computer architecture, OS fundamentals, math for AI.",
+    "total_weeks": 8,
+    "color": "#e85d26"
+  },
+  "phases": [
+    {
+      "title": "Phase 1 — Systems Foundation",
+      "duration_label": "Weeks 1–8",
+      "description": "Build the low-level foundation: C, computer architecture, OS fundamentals, math for AI.",
+      "milestone": "Can write a 1000+ line C program with proper memory management, no leaks (use Valgrind to verify). Have 10+ Stack Overflow answers and a visible GitHub profile.",
+      "blocks": [
+        {
+          "title": "Block A: C Programming & Memory Model",
+          "weeks_label": "Weeks 1–8",
+          "icon": "💻",
+          "pattern_text": "Pointers, manual memory management, structs/unions, file I/O — the mental model every later systems topic builds on.",
+          "resources": [
+            {
+              "name": "C Programming: A Modern Approach",
+              "author_or_type": "K.N. King",
+              "note": "THE C book. Do every exercise.",
+              "url": null,
+              "kind": "book",
+              "is_required": true
+            },
+            {
+              "name": "The C Programming Language",
+              "author_or_type": "Kernighan & Ritchie",
+              "note": "Read after King's book as a second pass. Short, dense, legendary.",
+              "url": null,
+              "kind": "book",
+              "is_required": true
+            }
+          ],
+          "daily_notes": [
+            "Day pattern: 2 hrs C study + exercises → 1 hr coding practice → 1 hr review/notes",
+            "Week 1–2: Data types, control flow, functions, arrays, strings",
+            "Week 3–4: Pointers deep dive — pointer arithmetic, arrays vs pointers, function pointers",
+            "Week 5–6: Structs, unions, dynamic memory (malloc/calloc/realloc/free), linked lists in C",
+            "Week 7–8: File I/O, preprocessor, header files, multi-file projects, Makefiles"
+          ],
+          "items": [
+            {
+              "kind": "project",
+              "title": "Build a dynamic array library (like C++ vector) from scratch",
+              "body": null,
+              "meta": null,
+              "is_required": true
+            },
+            {
+              "kind": "project",
+              "title": "Implement a hash table with collision handling",
+              "body": null,
+              "meta": null,
+              "is_required": true
+            },
+            {
+              "kind": "problem",
+              "title": "Two Sum",
+              "body": null,
+              "meta": { "lc_id": 1, "difficulty": "E", "slug": "two-sum" },
+              "is_required": true
+            },
+            {
+              "kind": "drill",
+              "title": "Pointer arithmetic drills — 20 exercises from K.N. King Ch. 11",
+              "body": null,
+              "meta": null,
+              "is_required": true
+            },
+            {
+              "kind": "community",
+              "title": "Stack Overflow",
+              "body": "Create an account. Start answering C questions tagged [c] [pointers] [memory-management]. Aim for 3 answers/week.",
+              "meta": { "platform": "Stack Overflow", "where": "stackoverflow.com/questions/tagged/c" },
+              "is_required": true
+            },
+            {
+              "kind": "community",
+              "title": "GitHub",
+              "body": "Push EVERY project publicly from day 1. Write proper READMEs with what you learned.",
+              "meta": { "platform": "GitHub", "where": "github.com" },
+              "is_required": true
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
