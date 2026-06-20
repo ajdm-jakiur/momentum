@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="overflow-x-hidden">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -13,7 +13,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 </head>
-<body class="font-sans antialiased text-ink-primary bg-base-bg">
+<body class="font-sans antialiased text-ink-primary bg-base-bg overflow-x-hidden">
 
 <div class="flex min-h-dvh">
 
@@ -66,7 +66,7 @@
     </aside>
 
     {{-- ─── Main content ────────────────────────────────────────────── --}}
-    <div class="flex-1 lg:ml-64 flex flex-col min-h-dvh">
+    <div class="flex-1 min-w-0 lg:ml-64 flex flex-col min-h-dvh overflow-x-hidden">
 
         {{-- Mobile header --}}
         <header class="lg:hidden sticky top-0 z-30 bg-base-surface/90 backdrop-blur-md border-b border-base-border h-14 flex items-center justify-between px-4 flex-shrink-0">
@@ -84,7 +84,7 @@
         </header>
 
         {{-- Page content --}}
-        <main class="flex-1 pb-24 lg:pb-8 md:px-6">
+        <main class="flex-1 pb-24 lg:pb-8 md:px-6 min-w-0 w-full overflow-x-hidden">
             {{ $slot }}
         </main>
     </div>

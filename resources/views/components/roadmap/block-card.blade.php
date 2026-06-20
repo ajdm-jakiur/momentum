@@ -40,7 +40,7 @@ $grouped   = collect($kindDefs)
                 <span class="font-mono font-bold uppercase tracking-wide text-[10px] text-warn">Still needed</span>
                 <div class="mt-1 flex flex-wrap gap-1">
                     @foreach($missing as $m)
-                        <span class="font-mono text-[11px] bg-base-elevated border border-warn/30 rounded px-1.5 py-0.5 text-ink-secondary">{{ $m }}</span>
+                        <span class="font-mono text-[11px] bg-base-elevated border border-warn/30 rounded px-1.5 py-0.5 text-ink-secondary max-w-full break-words">{{ $m }}</span>
                     @endforeach
                 </div>
             </div>

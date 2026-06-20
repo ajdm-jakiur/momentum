@@ -1,17 +1,17 @@
-<div class="px-5 py-6 lg:px-7 space-y-6 max-w-2xl">
+<div class="w-full px-3 py-5 sm:px-5 sm:py-6 lg:px-7 space-y-6 max-w-2xl overflow-x-hidden">
 
     <h1 class="font-mono text-2xl font-extrabold text-ink-primary">Profile</h1>
 
-    <div class="bg-base-surface border border-base-border rounded-xl p-6">
+    <div class="bg-base-surface border border-base-border rounded-xl p-4 sm:p-6">
         <livewire:profile.update-profile-information-form />
     </div>
 
-    <div class="bg-base-surface border border-base-border rounded-xl p-6">
+    <div class="bg-base-surface border border-base-border rounded-xl p-4 sm:p-6">
         <livewire:profile.update-password-form />
     </div>
 
     {{-- Referral / Invite section --}}
-    <div class="bg-base-surface border border-base-border rounded-xl p-6">
+    <div class="bg-base-surface border border-base-border rounded-xl p-4 sm:p-6">
         <h2 class="font-mono font-bold text-sm text-ink-primary mb-1">Invite link</h2>
         <p class="font-mono text-xs text-ink-tertiary mb-4">Share this link — only people with it can create an account.</p>
 
@@ -48,7 +48,7 @@
         @endif
     </div>
 
-    <div class="bg-base-surface border border-danger/20 rounded-xl p-6">
+    <div class="bg-base-surface border border-danger/20 rounded-xl p-4 sm:p-6">
         <livewire:profile.delete-user-form />
     </div>
 

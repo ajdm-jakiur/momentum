@@ -3,8 +3,8 @@
 @php $color = $phase->color ?? '#e85d26'; @endphp
 
 <div class="mb-8 pl-3 sm:pl-5 border-l-[3px]" style="border-left-color: {{ $color }}">
-    <div class="flex items-baseline gap-2 sm:gap-3 mb-1 flex-wrap">
-        <div class="font-mono text-base sm:text-xl font-bold text-ink-primary leading-snug">{{ $phase->title }}</div>
+    <div class="flex items-baseline gap-2 sm:gap-3 mb-1 flex-wrap min-w-0">
+        <div class="font-mono text-base sm:text-xl font-bold text-ink-primary leading-snug min-w-0 break-words">{{ $phase->title }}</div>
         @if($phase->duration_label)
             <div class="font-mono text-xs font-semibold px-2 py-0.5 rounded" style="color: {{ $color }}; background-color: {{ $color }}22">{{ $phase->duration_label }}</div>
         @endif

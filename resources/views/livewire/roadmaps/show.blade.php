@@ -9,9 +9,9 @@
             </button>
         </div>
 
-        <div class="mb-8">
-            <div class="flex items-center gap-3 flex-wrap">
-                <h1 class="font-mono text-2xl font-extrabold text-ink-primary">{{ $roadmap->title }}</h1>
+        <div class="mb-8 min-w-0">
+            <div class="flex items-start gap-3 flex-wrap min-w-0">
+                <h1 class="font-mono text-xl sm:text-2xl font-extrabold text-ink-primary break-words min-w-0 flex-1">{{ $roadmap->title }}</h1>
                 <span class="font-mono text-xs font-bold px-2 py-1 rounded {{ $roadmap->is_complete ? 'bg-ok/20 text-ok' : 'bg-base-elevated text-ink-secondary' }}">
                     {{ $roadmap->progress_percent }}% complete
                 </span>
