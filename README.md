@@ -1,58 +1,199 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Progress Track
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A personal learning management system for long-horizon, multi-domain self-education. Built to replace static HTML roadmaps with a structured, trackable, and AI-importable system.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## What it does
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Progress Track organises everything you're learning into a hierarchy of **Sectors → Roadmaps → Phases → Blocks → Items**, giving you per-item checkboxes, daily streaks, and weekly/monthly reports — all in one dark, distraction-free interface.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+| Concept | Description |
+|---|---|
+| **Sector** | A life domain — e.g. Systems Engineering, DSA, Dev Practice |
+| **Roadmap** | A structured learning plan under a sector, with phases and a timeline |
+| **Phase** | A time-boxed chunk of a roadmap (e.g. "Phase 1 — Weeks 1–8") with an optional milestone |
+| **Block** | A focused topic inside a phase (e.g. "C Programming & Memory Model") |
+| **Item** | A completable unit inside a block — project, problem, drill, habit, community action, etc. |
 
-## Learning Laravel
+A block is only complete when every required resource **and** every required item is checked off. Progress cascades up: block → phase → roadmap. No vague percentages — always shows you exactly what's still blocking completion.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+---
 
-In addition, [Laracasts](https://laracasts.com) contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## Features
 
-You can also watch bite-sized lessons with real-world projects on [Laravel Learn](https://laravel.com/learn), where you will be guided through building a Laravel application from scratch while learning PHP fundamentals.
+- **Roadmap viewer** — collapsible phase/block accordion with inline checkboxes on every completable row
+- **JSON import** — paste AI-generated roadmap JSON, get a live preview, confirm to persist
+- **Config-driven item kinds** — add new kinds (`drill`, `habit`, `practice`, `milestone`, …) by editing one config file, zero code changes
+- **Daily check-in** — log work per sector/roadmap/block/task with minutes and notes
+- **Streaks** — per-sector streak counters, recomputed on every check-in
+- **Tasks** — ad hoc recurring work (OSS, blog, Reddit answers, etc.) independent of roadmap structure
+- **Weekly & monthly reports** — aggregated views of hours logged, problems solved, community actions
+- **Dashboard** — per-sector progress %, current streak, this-week summary, next undone block
+- **Referral-only registration** — new accounts require an invite link; each user gets their own referral URL
+- **Push notifications** — Web Push API via service worker; daily digest via `notify:daily` artisan command
+- **Roadmap trash** — soft-delete with restore and permanent delete
+- **PWA-ready** — `manifest.json`, service worker, OLED dark theme
 
-## Agentic Development
+---
 
-Laravel's predictable structure and conventions make it ideal for AI coding agents like Claude Code, Cursor, and GitHub Copilot. Install [Laravel Boost](https://laravel.com/docs/ai) to supercharge your AI workflow:
+## Tech stack
+
+| Layer | Choice |
+|---|---|
+| Framework | Laravel 13 + PHP 8.3 |
+| Frontend | Livewire 3 + Volt + Alpine.js |
+| Styling | Tailwind CSS v3 |
+| Fonts | JetBrains Mono + Syne (Google Fonts) |
+| Database | SQLite (dev) — MySQL-compatible schema |
+| Push | `minishlink/web-push` + VAPID |
+
+---
+
+## Local setup
 
 ```bash
-composer require laravel/boost --dev
+git clone <repo>
+cd progress-track
 
-php artisan boost:install
+composer install
+npm install
+
+cp .env.example .env
+php artisan key:generate
+
+# Generate VAPID keys for push notifications
+php artisan web-push:vapid
+
+php artisan migrate --seed
+npm run build
+
+php artisan serve
 ```
 
-Boost provides your agent 15+ tools and skills that help agents build Laravel applications while following best practices.
+Open `http://localhost:8000`. Log in with the seeded user or use an invite link.
 
-## Contributing
+### Environment variables
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```env
+VAPID_PUBLIC_KEY=
+VAPID_PRIVATE_KEY=
+VAPID_SUBJECT=mailto:you@example.com
+```
 
-## Code of Conduct
+---
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## Importing a roadmap
 
-## Security Vulnerabilities
+Progress Track is designed to accept AI-generated roadmaps as JSON. The schema is fully documented:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+# Print the schema + field guide to terminal
+php artisan roadmap:schema
 
-## License
+# Save a starter file
+php artisan roadmap:schema --no-cheatsheet > my-roadmap.json
+```
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Or copy the schema from the **Import Roadmap** page in the UI and paste it into an AI prompt:
+
+> *"Generate a 12-week roadmap for [topic] following this exact JSON shape."*
+
+Paste the result back into the import page → preview → confirm.
+
+### Item kinds
+
+Defined in `config/roadmap.php`. Add new kinds here without touching any other code:
+
+```php
+'item_kinds' => [
+    'project'   => ['label' => 'Project',   'color' => 'accent', 'checkin_type' => 'project', 'section' => 'Projects & Builds'],
+    'problem'   => ['label' => 'Problem',   'color' => 'warn',   'checkin_type' => 'study',   'section' => 'Practice Problems'],
+    'drill'     => ['label' => 'Drill',     'color' => 'ok',     'checkin_type' => 'study',   'section' => 'Drills & Exercises'],
+    // add more here
+],
+```
+
+---
+
+## Daily notifications
+
+A scheduled artisan command sends a Web Push digest to all subscribed devices:
+
+```bash
+# Manual trigger
+php artisan notify:daily
+
+# Runs automatically at 08:00 via Laravel scheduler
+php artisan schedule:run
+```
+
+---
+
+## Running tests
+
+```bash
+php artisan test
+```
+
+43 tests, all green.
+
+---
+
+## Data model (abbreviated)
+
+```
+users              id, name, email, referral_code, referred_by
+sectors            id, name, slug, icon, color, sort_order
+roadmaps           id, sector_id, title, color, total_weeks, progress_percent, is_complete, deleted_at
+phases             id, roadmap_id, title, duration_label, milestone, sort_order
+blocks             id, phase_id, title, weeks_label, icon, pattern_text, sort_order
+block_resources    id, block_id, name, kind, is_required, is_done, done_at
+block_items        id, block_id, kind, title, meta(JSON), is_required, is_done, done_at
+block_daily_notes  id, block_id, body, sort_order
+tasks              id, user_id, sector_id?, roadmap_id?, title, type, recurrence, target_per_period
+checkins           id, user_id, date, sector_id?, roadmap_id?, block_id?, task_id?, minutes_spent, checkin_type
+streaks            id, user_id, sector_id, current_streak, longest_streak, last_checkin_date
+push_subscriptions id, user_id, endpoint, public_key, auth_token
+```
+
+Progress is computed bottom-up by `CompletionService` on every checkbox toggle — never stale, never a separate "mark complete" step.
+
+---
+
+## Project structure
+
+```
+app/
+  Livewire/
+    Dashboard.php          Per-sector summary
+    ProfilePage.php        Invite link + referred users
+    Roadmaps/
+      Show.php             Roadmap viewer + checkbox toggles
+      Import.php           JSON paste → preview → confirm
+      Trash.php            Soft-deleted roadmaps
+    Sectors/Index.php      Sector list
+    Tasks/Index.php        Recurring tasks
+    Checkins/Daily.php     Daily log
+    Reports/Weekly.php
+    Reports/Monthly.php
+  Services/
+    RoadmapImportService.php
+    CompletionService.php
+    CheckinService.php
+  Console/Commands/
+    SendDailyNotifications.php
+    RoadmapSchemaCommand.php
+config/
+  roadmap.php              Item kinds registry (single source of truth)
+database/
+  migrations/              14 files, no add-on alters
+  seeders/
+    SectorSeeder.php
+    RoadmapSeeder.php
+resources/
+  schemas/roadmap-sample.json
+public/
+  sw.js                    Service worker (push + offline)
+  manifest.json            PWA manifest
+```
