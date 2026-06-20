@@ -5,6 +5,8 @@ use Livewire\Volt\Component;
 
 new class extends Component
 {
+    public bool $openDown = false;
+
     public function logout(Logout $logout): void
     {
         $logout();
@@ -28,7 +30,8 @@ new class extends Component
          x-transition:enter-start="opacity-0 translate-y-1" x-transition:enter-end="opacity-100 translate-y-0"
          x-transition:leave="transition ease-in duration-100"
          x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 translate-y-1"
-         class="absolute bottom-full left-0 mb-1 w-48 bg-base-elevated border border-base-border rounded-xl shadow-2xl overflow-hidden z-50 lg:bottom-full lg:left-0">
+         class="absolute w-52 bg-base-elevated border border-base-border rounded-xl shadow-2xl overflow-hidden z-50
+                {{ $openDown ? 'top-full right-0 mt-2' : 'bottom-full left-0 mb-1' }}">
         <a href="{{ route('profile') }}" wire:navigate @click="open=false"
            class="flex items-center gap-2.5 px-3.5 py-2.5 text-sm font-mono text-ink-secondary hover:bg-base-hover hover:text-ink-primary transition-colors">
             <svg style="width:15px;height:15px;flex-shrink:0" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">

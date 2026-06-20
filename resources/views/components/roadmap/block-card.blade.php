@@ -9,7 +9,7 @@ $grouped   = collect($kindDefs)
 @endphp
 
 <div x-data="{ open: @js($open) }" class="bg-base-surface border border-base-border rounded-xl mb-4 overflow-hidden">
-    <button type="button" @click="open = !open" class="w-full px-4 py-3.5 flex justify-between items-center text-left hover:bg-base-hover transition-colors">
+    <button type="button" @click="open = !open" class="w-full px-3 py-3 sm:px-4 sm:py-3.5 flex justify-between items-center text-left hover:bg-base-hover transition-colors">
         <div class="flex items-center gap-2 min-w-0">
             @if($block->icon ?? null)<span class="text-lg flex-shrink-0">{{ $block->icon }}</span>@endif
             <div class="min-w-0">
@@ -27,7 +27,7 @@ $grouped   = collect($kindDefs)
         </div>
     </button>
 
-    <div x-show="open" x-cloak class="bg-base-elevated px-4 pb-4 pt-3">
+    <div x-show="open" x-cloak class="bg-base-elevated px-3 pb-3 pt-2.5 sm:px-4 sm:pb-4 sm:pt-3 overflow-hidden">
         @if($block->pattern_text ?? null)
             <div class="bg-base-elevated border border-base-border rounded-lg px-3 py-2.5 text-xs mb-3">
                 <span class="font-mono font-bold uppercase tracking-wide text-[10px]" style="color: {{ $color }}">Pattern</span>

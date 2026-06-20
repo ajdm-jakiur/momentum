@@ -1,5 +1,5 @@
-<div>
-    <div class="max-w-4xl mx-auto px-5 py-6 lg:px-7">
+<div class="overflow-x-hidden">
+    <div class="max-w-4xl mx-auto px-3 py-5 sm:px-5 sm:py-6 lg:px-7">
         <div class="mb-6 flex items-center justify-between">
             <a href="{{ route('sectors.index') }}" wire:navigate class="font-mono text-xs text-ink-tertiary hover:text-accent transition-colors">&larr; Sectors</a>
             <button wire:click="trash"

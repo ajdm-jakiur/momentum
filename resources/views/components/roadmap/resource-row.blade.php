@@ -1,6 +1,6 @@
 @props(['resource', 'readonly' => false])
 
-<div class="flex items-start gap-3 px-3 py-2 bg-base-surface border border-base-border rounded-lg {{ $resource->is_done ?? false ? 'opacity-50' : '' }}">
+<div class="flex items-start gap-2 px-2.5 py-2 sm:gap-3 sm:px-3 bg-base-surface border border-base-border rounded-lg overflow-hidden {{ $resource->is_done ?? false ? 'opacity-50' : '' }}">
     @if($readonly)
         <span class="mt-0.5 w-4 h-4 rounded border border-base-border flex-shrink-0"></span>
     @else
