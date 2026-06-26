@@ -1,12 +1,24 @@
 <div class="overflow-x-hidden">
     <div class="max-w-4xl mx-auto px-3 py-5 sm:px-5 sm:py-6 lg:px-7">
-        <div class="mb-6 flex items-center justify-between">
+        <div class="mb-6 flex items-center justify-between gap-3 flex-wrap">
             <a href="{{ route('sectors.index') }}" wire:navigate class="font-mono text-xs text-ink-tertiary hover:text-accent transition-colors">&larr; Sectors</a>
-            <button wire:click="trash"
-                    wire:confirm="Move '{{ addslashes($roadmap->title) }}' to trash?"
-                    class="font-mono text-xs text-ink-tertiary hover:text-danger transition-colors">
-                Move to Trash
-            </button>
+            <div class="flex items-center gap-3 flex-wrap">
+                @if($roadmap->imported_json)
+                    <div x-data="{ copied: false }">
+                        <button
+                            @click="navigator.clipboard.writeText({{ Js::from($roadmap->imported_json) }}).then(() => { copied = true; setTimeout(() => copied = false, 2000) })"
+                            class="font-mono text-xs text-ink-tertiary hover:text-accent transition-colors">
+                            <span x-show="!copied">Copy JSON</span>
+                            <span x-show="copied" x-cloak class="text-ok">Copied ✓</span>
+                        </button>
+                    </div>
+                @endif
+                <button wire:click="trash"
+                        wire:confirm="Move '{{ addslashes($roadmap->title) }}' to trash?"
+                        class="font-mono text-xs text-ink-tertiary hover:text-danger transition-colors">
+                    Move to Trash
+                </button>
+            </div>
         </div>
 
         <div class="mb-8 min-w-0">

@@ -1,12 +1,12 @@
 <div>
-    <div class="px-5 py-6 lg:px-7">
-        <div class="flex items-center justify-between mb-6">
-            <div>
+    <div class="px-3 py-5 sm:px-5 sm:py-6 lg:px-7 overflow-x-hidden">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+            <div class="min-w-0">
                 <h1 class="font-mono text-2xl font-extrabold text-ink-primary">Tasks</h1>
                 <p class="text-sm text-ink-secondary mt-1">Recurring work that lives outside any roadmap block — OSS contributions, Reddit/SO answers, blog posts, language practice.</p>
             </div>
             @if(! $showForm)
-                <button wire:click="newTask" class="bg-accent hover:bg-accent-dark text-white font-mono font-bold text-sm px-4 py-2.5 rounded-lg transition-colors flex-shrink-0">+ New Task</button>
+                <button wire:click="newTask" class="bg-accent hover:bg-accent-dark text-white font-mono font-bold text-sm px-4 py-2.5 rounded-lg transition-colors flex-shrink-0 self-start sm:self-auto">+ New Task</button>
             @endif
         </div>
 
@@ -71,7 +71,7 @@
                 <h2 class="font-mono font-bold text-sm text-ink-tertiary uppercase tracking-wide mb-2">{{ $sectorName }}</h2>
                 <div class="space-y-2">
                     @foreach($tasks as $task)
-                        <div class="flex items-center gap-3 bg-base-surface border border-base-border rounded-xl px-4 py-3.5 mb-2 {{ ! $task->is_active ? 'opacity-50' : '' }}">
+                        <div class="flex flex-col sm:flex-row sm:items-center gap-3 bg-base-surface border border-base-border rounded-xl px-3.5 py-3.5 sm:px-4 mb-2 {{ ! $task->is_active ? 'opacity-50' : '' }}">
                             <div class="flex-1 min-w-0">
                                 <div class="flex items-center gap-2 flex-wrap">
                                     <span class="font-mono text-[10px] font-bold uppercase tracking-wide bg-community/20 text-community px-2 py-0.5 rounded">{{ $types[$task->type] }}</span>
@@ -80,17 +80,17 @@
                                         <span class="font-mono text-[10px] text-ink-tertiary">target: {{ $task->target_per_period }}/period</span>
                                     @endif
                                 </div>
-                                <div class="font-semibold text-sm text-ink-primary mt-1">{{ $task->title }}</div>
+                                <div class="font-semibold text-sm text-ink-primary mt-1 break-words">{{ $task->title }}</div>
                                 @if($task->description)
-                                    <div class="text-xs text-ink-secondary mt-0.5">{{ $task->description }}</div>
+                                    <div class="text-xs text-ink-secondary mt-0.5 break-words">{{ $task->description }}</div>
                                 @endif
                             </div>
 
-                            <div class="flex items-center gap-2 flex-shrink-0">
+                            <div class="flex items-center gap-2 flex-wrap sm:flex-nowrap flex-shrink-0">
                                 @if(in_array($task->id, $loggedTodayTaskIds))
                                     <span class="bg-accent/15 text-accent border border-accent/25 font-mono text-xs font-bold px-2.5 py-1 rounded-full">Logged ✓</span>
                                 @else
-                                    <button wire:click="logToday({{ $task->id }})" class="bg-accent hover:bg-accent-dark text-white font-mono font-bold text-sm px-4 py-2.5 rounded-lg transition-colors text-xs px-2.5 py-1">Log today</button>
+                                    <button wire:click="logToday({{ $task->id }})" class="bg-accent hover:bg-accent-dark text-white font-mono font-bold text-xs px-2.5 py-1 rounded-lg transition-colors">Log today</button>
                                 @endif
                                 <button wire:click="edit({{ $task->id }})" class="font-mono text-xs text-ink-tertiary hover:text-ink-primary px-1 transition-colors">Edit</button>
                                 <button wire:click="toggleActive({{ $task->id }})" class="font-mono text-xs text-ink-tertiary hover:text-ink-primary px-1 transition-colors">{{ $task->is_active ? 'Pause' : 'Resume' }}</button>
