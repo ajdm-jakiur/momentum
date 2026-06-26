@@ -61,6 +61,87 @@ class RoadmapImportService
         }
     }
 
+    /**
+     * Replace all content of an existing roadmap from new JSON data.
+     * Keeps the roadmap record (same ID), deletes and rebuilds all phases.
+     *
+     * @throws ValidationException
+     */
+    public function reimport(Roadmap $roadmap, array $data): Roadmap
+    {
+        $this->validate($data);
+
+        return DB::transaction(function () use ($roadmap, $data) {
+            $sector = Sector::where('slug', $data['sector'])->firstOrFail();
+
+            $roadmap->update([
+                'sector_id' => $sector->id,
+                'title' => $data['roadmap']['title'],
+                'description' => $data['roadmap']['description'] ?? null,
+                'color' => $data['roadmap']['color'] ?? '#e85d26',
+                'total_weeks' => $data['roadmap']['total_weeks'] ?? null,
+                'source' => 'json_import',
+                'imported_json' => json_encode($data),
+            ]);
+
+            // Wipe and rebuild — simplest correct approach
+            $roadmap->phases()->each(fn ($p) => $p->blocks()->each(fn ($b) => $b->forceDelete()));
+            $roadmap->phases()->delete();
+
+            foreach (array_values($data['phases']) as $phaseIndex => $phaseData) {
+                $phase = $roadmap->phases()->create([
+                    'title' => $phaseData['title'],
+                    'duration_label' => $phaseData['duration_label'] ?? null,
+                    'description' => $phaseData['description'] ?? null,
+                    'milestone' => $phaseData['milestone'] ?? null,
+                    'color' => $phaseData['color'] ?? null,
+                    'sort_order' => $phaseIndex,
+                ]);
+
+                foreach (array_values($phaseData['blocks']) as $blockIndex => $blockData) {
+                    $block = $phase->blocks()->create([
+                        'title' => $blockData['title'],
+                        'weeks_label' => $blockData['weeks_label'] ?? null,
+                        'icon' => $blockData['icon'] ?? null,
+                        'pattern_text' => $blockData['pattern_text'] ?? null,
+                        'sort_order' => $blockIndex,
+                    ]);
+
+                    foreach (array_values($blockData['resources'] ?? []) as $resIndex => $res) {
+                        $block->resources()->create([
+                            'name' => $res['name'],
+                            'author_or_type' => $res['author_or_type'] ?? null,
+                            'note' => $res['note'] ?? null,
+                            'url' => $res['url'] ?? null,
+                            'kind' => $res['kind'] ?? 'book',
+                            'sort_order' => $resIndex,
+                            'is_required' => $res['is_required'] ?? true,
+                        ]);
+                    }
+
+                    foreach (array_values($blockData['daily_notes'] ?? []) as $noteIndex => $note) {
+                        $block->dailyNotes()->create(['body' => $note, 'sort_order' => $noteIndex]);
+                    }
+
+                    foreach (array_values($blockData['items'] ?? []) as $itemIndex => $item) {
+                        $block->items()->create([
+                            'kind' => $item['kind'],
+                            'title' => $item['title'],
+                            'body' => $item['body'] ?? null,
+                            'meta' => $item['meta'] ?? null,
+                            'sort_order' => $itemIndex,
+                            'is_required' => $item['is_required'] ?? true,
+                        ]);
+                    }
+
+                    $this->completion->recalculateBlock($block);
+                }
+            }
+
+            return $roadmap->refresh();
+        });
+    }
+
     public function import(array $data): Roadmap
     {
         $this->validate($data);

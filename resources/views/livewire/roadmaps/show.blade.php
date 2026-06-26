@@ -13,6 +13,8 @@
                         </button>
                     </div>
                 @endif
+                <a href="{{ route('roadmaps.edit', $roadmap) }}" wire:navigate
+                   class="font-mono text-xs text-ink-tertiary hover:text-accent transition-colors">Edit</a>
                 <button wire:click="trash"
                         wire:confirm="Move '{{ addslashes($roadmap->title) }}' to trash?"
                         class="font-mono text-xs text-ink-tertiary hover:text-danger transition-colors">
