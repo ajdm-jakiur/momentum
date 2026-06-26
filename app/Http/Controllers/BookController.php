@@ -70,7 +70,7 @@ class BookController extends Controller
 
     public function cover(Book $book): StreamedResponse
     {
-        abort_unless($book->user_id === auth()->id(), 403);
+        abort_unless((int) $book->user_id === (int) auth()->id(), 403);
         abort_unless($book->cover_image, 404);
 
         return response()->stream(function () use ($book) {
@@ -89,7 +89,7 @@ class BookController extends Controller
 
     public function serve(Book $book): StreamedResponse
     {
-        abort_unless($book->user_id === auth()->id(), 403);
+        abort_unless((int) $book->user_id === (int) auth()->id(), 403);
 
         return response()->stream(function () use ($book) {
             while (ob_get_level()) ob_end_clean();

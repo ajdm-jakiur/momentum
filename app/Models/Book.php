@@ -9,6 +9,13 @@ use Illuminate\Support\Facades\Storage;
 
 class Book extends Model
 {
+    protected $casts = [
+        'user_id'    => 'integer',
+        'sector_id'  => 'integer',
+        'file_size'  => 'integer',
+        'page_count' => 'integer',
+    ];
+
     protected $fillable = [
         'user_id', 'sector_id', 'title', 'author', 'r2_key',
         'mime_type', 'file_size', 'page_count', 'cover_color', 'description',
