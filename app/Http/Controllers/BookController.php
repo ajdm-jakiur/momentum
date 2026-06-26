@@ -18,35 +18,46 @@ class BookController extends Controller
         $request->validate([
             'filename'  => 'required|string|max:255',
             'mime_type' => 'required|in:application/pdf',
-            'size'      => 'required|integer|min:1|max:314572800', // 300 MB
+            'size'      => 'required|integer|min:1|max:314572800',
         ]);
 
-        $ext   = 'pdf';
-        $key   = 'books/'.auth()->id().'/'.uniqid('', true).'.'.$ext;
+        try {
+            $endpoint = config('filesystems.disks.r2.endpoint');
+            $key      = config('filesystems.disks.r2.key');
+            $secret   = config('filesystems.disks.r2.secret');
+            $bucket   = config('filesystems.disks.r2.bucket');
 
-        $s3 = new S3Client([
-            'version'                 => 'latest',
-            'region'                  => 'auto',
-            'endpoint'                => config('filesystems.disks.r2.endpoint'),
-            'credentials'             => [
-                'key'    => config('filesystems.disks.r2.key'),
-                'secret' => config('filesystems.disks.r2.secret'),
-            ],
-            'use_path_style_endpoint' => true,
-        ]);
+            if (! $endpoint || ! $key || ! $secret || ! $bucket) {
+                \Log::error('[presign] Missing R2 config', compact('endpoint', 'bucket') + ['key_set' => (bool)$key, 'secret_set' => (bool)$secret]);
+                return response()->json(['message' => 'R2 not configured on server.'], 500);
+            }
 
-        $cmd = $s3->getCommand('PutObject', [
-            'Bucket'      => config('filesystems.disks.r2.bucket'),
-            'Key'         => $key,
-            'ContentType' => 'application/pdf',
-        ]);
+            $r2Key = 'books/'.auth()->id().'/'.uniqid('', true).'.pdf';
 
-        $presigned = $s3->createPresignedRequest($cmd, '+15 minutes');
+            $s3 = new S3Client([
+                'version'                 => 'latest',
+                'region'                  => 'auto',
+                'endpoint'                => $endpoint,
+                'credentials'             => ['key' => $key, 'secret' => $secret],
+                'use_path_style_endpoint' => true,
+            ]);
 
-        return response()->json([
-            'url' => (string) $presigned->getUri(),
-            'key' => $key,
-        ]);
+            $cmd       = $s3->getCommand('PutObject', [
+                'Bucket'      => $bucket,
+                'Key'         => $r2Key,
+                'ContentType' => 'application/pdf',
+            ]);
+            $presigned = $s3->createPresignedRequest($cmd, '+15 minutes');
+
+            return response()->json([
+                'url' => (string) $presigned->getUri(),
+                'key' => $r2Key,
+            ]);
+
+        } catch (\Throwable $e) {
+            \Log::error('[presign] failed: '.$e->getMessage(), ['trace' => $e->getTraceAsString()]);
+            return response()->json(['message' => 'Presign error: '.$e->getMessage()], 500);
+        }
     }
 
     public function cover(Book $book): StreamedResponse

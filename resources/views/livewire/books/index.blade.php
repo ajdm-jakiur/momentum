@@ -51,12 +51,13 @@
                          const csrfToken = document.querySelector('meta[name=csrf-token]').content;
                          const presignRes = await fetch('{{ route('books.presign') }}', {
                              method: 'POST',
+                             credentials: 'include',
                              headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
                              body: JSON.stringify({ filename: this.selectedFileName, mime_type: 'application/pdf', size: this.selectedFileSize }),
                          });
                          if (!presignRes.ok) {
                              const err = await presignRes.json().catch(() => ({}));
-                             throw new Error('Presign failed: ' + (err.message || presignRes.status));
+                             throw new Error('Presign failed ' + presignRes.status + ': ' + (err.message || 'check server log'));
                          }
                          const { url, key } = await presignRes.json();
 
