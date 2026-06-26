@@ -5,7 +5,6 @@ namespace App\Livewire\Books;
 use App\Livewire\FullPageComponent;
 use App\Models\Book;
 use App\Models\Sector;
-use App\Services\PdfCompressor;
 use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Computed;
 use Livewire\WithFileUploads;
@@ -18,8 +17,13 @@ class Index extends FullPageComponent
 
     public bool $showForm = false;
 
-    public $file       = null;
+    // Direct R2 upload fields (r2Key set by JS after browser→R2 upload)
+    public string $r2Key     = '';
+    public int    $fileSize  = 0;
+
+    // Cover still goes through Livewire (small file, under Cloudflare limit)
     public $coverFile  = null;
+
     public string $title       = '';
     public string $author      = '';
     public string $description = '';
@@ -32,20 +36,21 @@ class Index extends FullPageComponent
         return Sector::orderBy('sort_order')->get();
     }
 
-    public function saveBook(): void
+    // Called by JS after successful browser→R2 upload
+    public function saveBook(string $r2Key, int $fileSize): void
     {
-        \Log::info('[saveBook] called', [
-            'user'            => auth()->id(),
-            'file_present'    => $this->file !== null,
-            'upload_max'      => ini_get('upload_max_filesize'),
-            'post_max'        => ini_get('post_max_size'),
-            'memory_limit'    => ini_get('memory_limit'),
-            'file_size_bytes' => $this->file?->getSize(),
-            'file_error'      => $this->file?->getError(),
+        \Log::info('[saveBook] called via direct R2 upload', [
+            'user'      => auth()->id(),
+            'r2Key'     => $r2Key,
+            'fileSize'  => $fileSize,
         ]);
 
+        $this->r2Key    = $r2Key;
+        $this->fileSize = $fileSize;
+
         $this->validate([
-            'file'        => 'required|file|mimes:pdf|max:307200',
+            'r2Key'       => 'required|string',
+            'fileSize'    => 'required|integer|min:1',
             'coverFile'   => 'nullable|file|image|mimes:jpg,jpeg,png,webp|max:5120',
             'title'       => 'required|string|max:255',
             'author'      => 'nullable|string|max:255',
@@ -54,23 +59,13 @@ class Index extends FullPageComponent
             'coverColor'  => 'required|string|max:7',
         ]);
 
+        // Verify key belongs to this user (prefix check — prevents tampering)
+        if (! str_starts_with($r2Key, 'books/'.auth()->id().'/')) {
+            $this->addError('title', 'Invalid upload key.');
+            return;
+        }
+
         try {
-            $mimeType  = $this->file->getMimeType();
-            $localPath = $this->file->getRealPath();
-
-            $compressedPath = PdfCompressor::compress($localPath);
-            $uploadPath     = $compressedPath ?? $localPath;
-            $fileSize       = filesize($uploadPath);
-
-            $r2Key  = 'books/'.auth()->id().'/'.uniqid('', true).'.pdf';
-            $stream = fopen($uploadPath, 'rb');
-            Storage::disk('r2')->put($r2Key, $stream, 'private');
-            fclose($stream);
-
-            if ($compressedPath) {
-                @unlink($compressedPath);
-            }
-
             $book = Book::create([
                 'user_id'     => auth()->id(),
                 'sector_id'   => $this->sectorId ?: null,
@@ -78,36 +73,35 @@ class Index extends FullPageComponent
                 'author'      => $this->author ?: null,
                 'description' => $this->description ?: null,
                 'r2_key'      => $r2Key,
-                'mime_type'   => $mimeType,
+                'mime_type'   => 'application/pdf',
                 'file_size'   => $fileSize,
                 'cover_color' => $this->coverColor,
             ]);
 
             if ($this->coverFile) {
-                $ext       = $this->coverFile->extension();
-                $coverKey  = 'covers/'.auth()->id().'/'.uniqid('', true).'.'.$ext;
-                $coverMime = $this->coverFile->getMimeType();
+                $ext      = $this->coverFile->extension();
+                $coverKey = 'covers/'.auth()->id().'/'.uniqid('', true).'.'.$ext;
                 $cs = fopen($this->coverFile->getRealPath(), 'rb');
                 Storage::disk('r2')->put($coverKey, $cs, 'private');
                 fclose($cs);
-                $book->update(['cover_image' => $coverKey, 'cover_mime' => $coverMime]);
+                $book->update([
+                    'cover_image' => $coverKey,
+                    'cover_mime'  => $this->coverFile->getMimeType(),
+                ]);
             }
 
-            $this->reset(['file', 'coverFile', 'title', 'author', 'description', 'sectorId', 'showForm']);
+            $this->reset(['r2Key', 'fileSize', 'coverFile', 'title', 'author', 'description', 'sectorId', 'showForm']);
             $this->coverColor = '#e85d26';
             $this->resetPage();
 
-            $msg = $compressedPath
-                ? 'Book uploaded and compressed (saved '.round((filesize($localPath) - $fileSize) / 1024 / 1024, 1).' MB).'
-                : 'Book uploaded successfully.';
-            session()->flash('success', $msg);
+            session()->flash('success', 'Book uploaded successfully.');
 
         } catch (\Exception $e) {
-            $this->addError('file', 'Upload error: '.$e->getMessage().' | Check storage/logs/laravel.log');
-            \Log::error('[saveBook] failed', [
-                'error'   => $e->getMessage(),
-                'trace'   => $e->getTraceAsString(),
-                'user'    => auth()->id(),
+            $this->addError('title', 'Save error: '.$e->getMessage());
+            \Log::error('[saveBook] DB save failed', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'user'  => auth()->id(),
             ]);
         }
     }

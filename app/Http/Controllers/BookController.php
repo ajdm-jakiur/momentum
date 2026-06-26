@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\Book;
+use Aws\S3\S3Client;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -10,6 +13,42 @@ use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class BookController extends Controller
 {
+    public function presign(Request $request): JsonResponse
+    {
+        $request->validate([
+            'filename'  => 'required|string|max:255',
+            'mime_type' => 'required|in:application/pdf',
+            'size'      => 'required|integer|min:1|max:314572800', // 300 MB
+        ]);
+
+        $ext   = 'pdf';
+        $key   = 'books/'.auth()->id().'/'.uniqid('', true).'.'.$ext;
+
+        $s3 = new S3Client([
+            'version'                 => 'latest',
+            'region'                  => 'auto',
+            'endpoint'                => config('filesystems.disks.r2.endpoint'),
+            'credentials'             => [
+                'key'    => config('filesystems.disks.r2.key'),
+                'secret' => config('filesystems.disks.r2.secret'),
+            ],
+            'use_path_style_endpoint' => true,
+        ]);
+
+        $cmd = $s3->getCommand('PutObject', [
+            'Bucket'      => config('filesystems.disks.r2.bucket'),
+            'Key'         => $key,
+            'ContentType' => 'application/pdf',
+        ]);
+
+        $presigned = $s3->createPresignedRequest($cmd, '+15 minutes');
+
+        return response()->json([
+            'url' => (string) $presigned->getUri(),
+            'key' => $key,
+        ]);
+    }
+
     public function cover(Book $book): StreamedResponse
     {
         abort_unless($book->user_id === auth()->id(), 403);
