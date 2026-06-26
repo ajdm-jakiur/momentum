@@ -34,6 +34,16 @@ class Index extends FullPageComponent
 
     public function saveBook(): void
     {
+        \Log::info('[saveBook] called', [
+            'user'            => auth()->id(),
+            'file_present'    => $this->file !== null,
+            'upload_max'      => ini_get('upload_max_filesize'),
+            'post_max'        => ini_get('post_max_size'),
+            'memory_limit'    => ini_get('memory_limit'),
+            'file_size_bytes' => $this->file?->getSize(),
+            'file_error'      => $this->file?->getError(),
+        ]);
+
         $this->validate([
             'file'        => 'required|file|mimes:pdf|max:307200',
             'coverFile'   => 'nullable|file|image|mimes:jpg,jpeg,png,webp|max:5120',
@@ -93,8 +103,12 @@ class Index extends FullPageComponent
             session()->flash('success', $msg);
 
         } catch (\Exception $e) {
-            $this->addError('file', 'Upload error: '.$e->getMessage());
-            \Log::error('R2 book upload failed', ['error' => $e->getMessage(), 'user' => auth()->id()]);
+            $this->addError('file', 'Upload error: '.$e->getMessage().' | Check storage/logs/laravel.log');
+            \Log::error('[saveBook] failed', [
+                'error'   => $e->getMessage(),
+                'trace'   => $e->getTraceAsString(),
+                'user'    => auth()->id(),
+            ]);
         }
     }
 

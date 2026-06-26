@@ -17,6 +17,28 @@ use App\Livewire\Sectors\Index as SectorsIndex;
 use App\Livewire\Tasks\Index as TasksIndex;
 use Illuminate\Support\Facades\Route;
 
+// TEMP DEBUG — remove after diagnosing upload issue
+Route::get('/debug/upload-info', function () {
+    abort_unless(app()->environment('local') || auth()->check(), 403);
+    return response()->json([
+        'upload_max_filesize' => ini_get('upload_max_filesize'),
+        'post_max_size'       => ini_get('post_max_size'),
+        'memory_limit'        => ini_get('memory_limit'),
+        'max_execution_time'  => ini_get('max_execution_time'),
+        'max_input_time'      => ini_get('max_input_time'),
+        'php_version'         => PHP_VERSION,
+        'server_software'     => $_SERVER['SERVER_SOFTWARE'] ?? 'unknown',
+        'tmp_dir'             => sys_get_temp_dir(),
+        'tmp_writable'        => is_writable(sys_get_temp_dir()),
+        'storage_writable'    => is_writable(storage_path('app')),
+        'livewire_tmp'        => storage_path('app/livewire-tmp'),
+        'livewire_tmp_exists' => is_dir(storage_path('app/livewire-tmp')),
+        'livewire_tmp_write'  => is_dir(storage_path('app/livewire-tmp')) && is_writable(storage_path('app/livewire-tmp')),
+        'htaccess_active'     => ini_get('upload_max_filesize') !== '128M',
+        'last_laravel_log'    => @file_get_contents(storage_path('logs/laravel.log'), false, null, -3000) ?: 'no log',
+    ]);
+})->name('debug.upload');
+
 Route::redirect('/', 'login');
 
 Route::get('profile', ProfilePage::class)

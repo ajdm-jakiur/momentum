@@ -21,10 +21,31 @@
     {{-- Upload Form --}}
     @if($showForm)
         <div class="bg-base-surface border border-base-border rounded-xl px-4 py-5 sm:px-6 mb-6 space-y-4"
-             x-data="{ progress: 0, uploading: false, uploadError: '', coverPreview: null }"
+             x-data="{
+                 progress: 0, uploading: false, uploadError: '', coverPreview: null,
+                 init() {
+                     // Intercept XHR to capture upload response status + body
+                     const orig = window.XMLHttpRequest;
+                     window.XMLHttpRequest = function() {
+                         const xhr = new orig();
+                         const origOpen = xhr.open.bind(xhr);
+                         xhr.open = function(method, url, ...rest) {
+                             if (url && url.toString().includes('upload-file')) {
+                                 xhr.addEventListener('loadend', () => {
+                                     const info = 'HTTP ' + xhr.status + ' — ' + (xhr.responseText || '').substring(0, 300);
+                                     console.error('[Upload XHR]', info);
+                                     window._lastUploadDebug = info;
+                                 });
+                             }
+                             return origOpen(method, url, ...rest);
+                         };
+                         return xhr;
+                     };
+                 }
+             }"
              x-on:livewire-upload-start="uploading = true; progress = 0; uploadError = ''"
              x-on:livewire-upload-finish="uploading = false"
-             x-on:livewire-upload-error="uploading = false; uploadError = 'Upload failed. Check file size and try again.'"
+             x-on:livewire-upload-error="uploading = false; uploadError = 'Upload failed — ' + (window._lastUploadDebug || 'see browser console (F12)')"
              x-on:livewire-upload-progress="progress = $event.detail.progress">
 
             <h2 class="font-mono font-bold text-sm text-ink-primary">Add a Book</h2>
