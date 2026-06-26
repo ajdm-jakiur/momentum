@@ -5,24 +5,14 @@ namespace App\Livewire\Books;
 use App\Livewire\FullPageComponent;
 use App\Models\Book;
 use App\Models\Sector;
-use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Computed;
-use Livewire\WithFileUploads;
 use Livewire\WithPagination;
 
 class Index extends FullPageComponent
 {
-    use WithFileUploads;
     use WithPagination;
 
     public bool $showForm = false;
-
-    // Direct R2 upload fields (r2Key set by JS after browser→R2 upload)
-    public string $r2Key     = '';
-    public int    $fileSize  = 0;
-
-    // Cover still goes through Livewire (small file, under Cloudflare limit)
-    public $coverFile  = null;
 
     public string $title       = '';
     public string $author      = '';
@@ -36,22 +26,15 @@ class Index extends FullPageComponent
         return Sector::orderBy('sort_order')->get();
     }
 
-    // Called by JS after successful browser→R2 upload
-    public function saveBook(string $r2Key, int $fileSize): void
+    // Called by JS after both PDF and cover are uploaded directly to R2
+    public function saveBook(string $r2Key, int $fileSize, string $coverKey = '', string $coverMime = ''): void
     {
-        \Log::info('[saveBook] called via direct R2 upload', [
-            'user'      => auth()->id(),
-            'r2Key'     => $r2Key,
-            'fileSize'  => $fileSize,
-        ]);
-
-        $this->r2Key    = $r2Key;
-        $this->fileSize = $fileSize;
+        if (! str_starts_with($r2Key, 'books/'.auth()->id().'/')) {
+            $this->addError('title', 'Invalid upload key.');
+            return;
+        }
 
         $this->validate([
-            'r2Key'       => 'required|string',
-            'fileSize'    => 'required|integer|min:1',
-            'coverFile'   => 'nullable|file|image|mimes:jpg,jpeg,png,webp|max:5120',
             'title'       => 'required|string|max:255',
             'author'      => 'nullable|string|max:255',
             'description' => 'nullable|string',
@@ -59,14 +42,8 @@ class Index extends FullPageComponent
             'coverColor'  => 'required|string|max:7',
         ]);
 
-        // Verify key belongs to this user (prefix check — prevents tampering)
-        if (! str_starts_with($r2Key, 'books/'.auth()->id().'/')) {
-            $this->addError('title', 'Invalid upload key.');
-            return;
-        }
-
         try {
-            $book = Book::create([
+            $data = [
                 'user_id'     => auth()->id(),
                 'sector_id'   => $this->sectorId ?: null,
                 'title'       => $this->title,
@@ -76,21 +53,16 @@ class Index extends FullPageComponent
                 'mime_type'   => 'application/pdf',
                 'file_size'   => $fileSize,
                 'cover_color' => $this->coverColor,
-            ]);
+            ];
 
-            if ($this->coverFile) {
-                $ext      = $this->coverFile->extension();
-                $coverKey = 'covers/'.auth()->id().'/'.uniqid('', true).'.'.$ext;
-                $cs = fopen($this->coverFile->getRealPath(), 'rb');
-                Storage::disk('r2')->put($coverKey, $cs, 'private');
-                fclose($cs);
-                $book->update([
-                    'cover_image' => $coverKey,
-                    'cover_mime'  => $this->coverFile->getMimeType(),
-                ]);
+            if ($coverKey && str_starts_with($coverKey, 'covers/'.auth()->id().'/')) {
+                $data['cover_image'] = $coverKey;
+                $data['cover_mime']  = $coverMime ?: 'image/jpeg';
             }
 
-            $this->reset(['r2Key', 'fileSize', 'coverFile', 'title', 'author', 'description', 'sectorId', 'showForm']);
+            Book::create($data);
+
+            $this->reset(['title', 'author', 'description', 'sectorId', 'showForm']);
             $this->coverColor = '#e85d26';
             $this->resetPage();
 
@@ -98,11 +70,7 @@ class Index extends FullPageComponent
 
         } catch (\Exception $e) {
             $this->addError('title', 'Save error: '.$e->getMessage());
-            \Log::error('[saveBook] DB save failed', [
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'user'  => auth()->id(),
-            ]);
+            \Log::error('[saveBook] failed', ['error' => $e->getMessage(), 'user' => auth()->id()]);
         }
     }
 

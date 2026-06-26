@@ -17,7 +17,7 @@ class BookController extends Controller
     {
         $request->validate([
             'filename'  => 'required|string|max:255',
-            'mime_type' => 'required|in:application/pdf',
+            'mime_type' => 'required|in:application/pdf,image/jpeg,image/png,image/webp',
             'size'      => 'required|integer|min:1|max:314572800',
         ]);
 
@@ -32,7 +32,15 @@ class BookController extends Controller
                 return response()->json(['message' => 'R2 not configured on server.'], 500);
             }
 
-            $r2Key = 'books/'.auth()->id().'/'.uniqid('', true).'.pdf';
+            $mimeType = $request->input('mime_type');
+            $ext      = match($mimeType) {
+                'image/jpeg' => 'jpg',
+                'image/png'  => 'png',
+                'image/webp' => 'webp',
+                default      => 'pdf',
+            };
+            $folder   = str_starts_with($mimeType, 'image/') ? 'covers' : 'books';
+            $r2Key    = $folder.'/'.auth()->id().'/'.uniqid('', true).'.'.$ext;
 
             $s3 = new S3Client([
                 'version'                 => 'latest',
@@ -45,7 +53,7 @@ class BookController extends Controller
             $cmd       = $s3->getCommand('PutObject', [
                 'Bucket'      => $bucket,
                 'Key'         => $r2Key,
-                'ContentType' => 'application/pdf',
+                'ContentType' => $mimeType,
             ]);
             $presigned = $s3->createPresignedRequest($cmd, '+15 minutes');
 

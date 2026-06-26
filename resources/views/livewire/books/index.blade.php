@@ -23,12 +23,14 @@
         <div class="bg-base-surface border border-base-border rounded-xl px-4 py-5 sm:px-6 mb-6 space-y-4"
              x-data="{
                  progress: 0,
-                 phase: 'idle',   // idle | uploading | saving | done | error
+                 phase: 'idle',   // idle | uploading-pdf | uploading-cover | saving | done | error
                  uploadError: '',
                  coverPreview: null,
                  selectedFile: null,
                  selectedFileName: '',
                  selectedFileSize: 0,
+                 selectedCover: null,
+                 selectedCoverMime: '',
 
                  selectFile(e) {
                      const f = e.target.files[0];
@@ -40,43 +42,68 @@
                      this.uploadError = '';
                  },
 
+                 selectCover(e) {
+                     const f = e.target.files[0];
+                     if (!f) return;
+                     this.selectedCover = f;
+                     this.selectedCoverMime = f.type;
+                     const r = new FileReader();
+                     r.onload = ev => this.coverPreview = ev.target.result;
+                     r.readAsDataURL(f);
+                 },
+
+                 async presign(filename, mimeType, size) {
+                     const csrf = document.querySelector('meta[name=csrf-token]').content;
+                     const res  = await fetch('{{ route('books.presign') }}', {
+                         method: 'POST',
+                         credentials: 'include',
+                         headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' },
+                         body: JSON.stringify({ filename, mime_type: mimeType, size }),
+                     });
+                     if (!res.ok) {
+                         const err = await res.json().catch(() => ({}));
+                         throw new Error('Presign failed ' + res.status + ': ' + (err.message || 'check server log'));
+                     }
+                     return res.json();
+                 },
+
+                 putR2(url, file, mimeType, onProgress) {
+                     return new Promise((resolve, reject) => {
+                         const xhr = new XMLHttpRequest();
+                         xhr.open('PUT', url);
+                         xhr.setRequestHeader('Content-Type', mimeType);
+                         xhr.upload.addEventListener('progress', e => { if (e.lengthComputable) onProgress(Math.round(e.loaded / e.total * 100)); });
+                         xhr.addEventListener('load', () => xhr.status >= 200 && xhr.status < 300 ? resolve() : reject(new Error('R2 PUT failed: HTTP ' + xhr.status + ' ' + xhr.responseText.substring(0,200))));
+                         xhr.addEventListener('error', () => reject(new Error('Network error during upload')));
+                         xhr.send(file);
+                     });
+                 },
+
                  async uploadAndSave() {
                      if (!this.selectedFile) { this.uploadError = 'Select a PDF first.'; return; }
-                     this.phase = 'uploading';
                      this.uploadError = '';
                      this.progress = 0;
 
                      try {
-                         // Step 1: get presigned PUT URL from server (tiny request — passes Cloudflare fine)
-                         const csrfToken = document.querySelector('meta[name=csrf-token]').content;
-                         const presignRes = await fetch('{{ route('books.presign') }}', {
-                             method: 'POST',
-                             credentials: 'include',
-                             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
-                             body: JSON.stringify({ filename: this.selectedFileName, mime_type: 'application/pdf', size: this.selectedFileSize }),
-                         });
-                         if (!presignRes.ok) {
-                             const err = await presignRes.json().catch(() => ({}));
-                             throw new Error('Presign failed ' + presignRes.status + ': ' + (err.message || 'check server log'));
+                         // Upload PDF directly to R2
+                         this.phase = 'uploading-pdf';
+                         const { url: pdfUrl, key: pdfKey } = await this.presign(this.selectedFileName, 'application/pdf', this.selectedFileSize);
+                         await this.putR2(pdfUrl, this.selectedFile, 'application/pdf', p => this.progress = p);
+
+                         // Upload cover directly to R2 (if selected)
+                         let coverKey = '', coverMime = '';
+                         if (this.selectedCover) {
+                             this.phase = 'uploading-cover';
+                             this.progress = 0;
+                             const { url: covUrl, key: covKey } = await this.presign(this.selectedCover.name, this.selectedCoverMime, this.selectedCover.size);
+                             await this.putR2(covUrl, this.selectedCover, this.selectedCoverMime, p => this.progress = p);
+                             coverKey  = covKey;
+                             coverMime = this.selectedCoverMime;
                          }
-                         const { url, key } = await presignRes.json();
 
-                         // Step 2: PUT file directly to R2 (bypasses Cloudflare entirely)
-                         await new Promise((resolve, reject) => {
-                             const xhr = new XMLHttpRequest();
-                             xhr.open('PUT', url);
-                             xhr.setRequestHeader('Content-Type', 'application/pdf');
-                             xhr.upload.addEventListener('progress', e => {
-                                 if (e.lengthComputable) this.progress = Math.round(e.loaded / e.total * 100);
-                             });
-                             xhr.addEventListener('load', () => xhr.status >= 200 && xhr.status < 300 ? resolve() : reject(new Error('R2 PUT failed: HTTP ' + xhr.status)));
-                             xhr.addEventListener('error', () => reject(new Error('Network error during upload')));
-                             xhr.send(this.selectedFile);
-                         });
-
-                         // Step 3: tell Livewire to save DB record (small request — fine through Cloudflare)
+                         // Save DB record via Livewire
                          this.phase = 'saving';
-                         await $wire.saveBook(key, this.selectedFileSize);
+                         await $wire.saveBook(pdfKey, this.selectedFileSize, coverKey, coverMime);
                          this.phase = 'done';
 
                      } catch (e) {
@@ -86,10 +113,6 @@
                      }
                  }
              }"
-             x-on:livewire-upload-start="true"
-             x-on:livewire-upload-finish="true"
-             x-on:livewire-upload-error="uploading = false"
-             x-on:livewire-upload-progress="true">
 
             <h2 class="font-mono font-bold text-sm text-ink-primary">Add a Book</h2>
 
@@ -107,9 +130,9 @@
                        x-text="selectedFileName + ' (' + (selectedFileSize / 1024 / 1024).toFixed(1) + ' MB)'"></p>
 
                     {{-- Progress bar --}}
-                    <div x-show="phase === 'uploading'" class="mt-2 space-y-1.5">
+                    <div x-show="phase === 'uploading-pdf' || phase === 'uploading-cover'" class="mt-2 space-y-1.5">
                         <div class="flex items-center justify-between">
-                            <span class="font-mono text-[11px] text-ink-tertiary">Uploading directly to R2…</span>
+                            <span class="font-mono text-[11px] text-ink-tertiary" x-text="phase === 'uploading-cover' ? 'Uploading cover…' : 'Uploading PDF to R2…'"></span>
                             <span class="font-mono text-[11px] text-accent font-bold" x-text="progress + '%'"></span>
                         </div>
                         <div class="h-1.5 bg-base-elevated rounded-full overflow-hidden">
@@ -143,11 +166,10 @@
                             </template>
                         </div>
                         <div class="flex-1">
-                            <input type="file" wire:model="coverFile" accept="image/jpeg,image/png,image/webp"
-                                   :disabled="phase === 'uploading' || phase === 'saving'"
-                                   @change="const f=$event.target.files[0]; if(f){const r=new FileReader();r.onload=e=>coverPreview=e.target.result;r.readAsDataURL(f)}else{coverPreview=null}"
+                            <input type="file" accept="image/jpeg,image/png,image/webp"
+                                   :disabled="phase === 'uploading-pdf' || phase === 'uploading-cover' || phase === 'saving'"
+                                   @change="selectCover($event)"
                                    class="w-full bg-base-elevated border border-base-border text-ink-secondary rounded-lg px-3.5 py-2.5 text-sm font-mono focus:outline-none focus:border-accent transition-colors file:mr-3 file:py-1 file:px-3 file:rounded file:border-0 file:font-mono file:text-xs file:bg-white/10 file:text-ink-secondary disabled:opacity-50">
-                            @error('coverFile') <p class="text-xs text-danger mt-1">{{ $message }}</p> @enderror
                         </div>
                     </div>
                 </div>
@@ -196,14 +218,15 @@
 
             <div class="flex gap-3 pt-1">
                 <button @click="uploadAndSave()"
-                        :disabled="phase === 'uploading' || phase === 'saving' || !selectedFile"
+                        :disabled="phase === 'uploading-pdf' || phase === 'uploading-cover' || phase === 'saving' || !selectedFile"
                         class="bg-accent hover:bg-accent-dark text-white font-mono font-bold text-sm px-5 py-2.5 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                    <span x-show="phase !== 'uploading' && phase !== 'saving'">Save to Library</span>
-                    <span x-show="phase === 'uploading'">Uploading <span x-text="progress + '%'"></span>…</span>
+                    <span x-show="phase !== 'uploading-pdf' && phase !== 'uploading-cover' && phase !== 'saving'">Save to Library</span>
+                    <span x-show="phase === 'uploading-pdf'">Uploading PDF <span x-text="progress + '%'"></span>…</span>
+                    <span x-show="phase === 'uploading-cover'">Uploading cover <span x-text="progress + '%'"></span>…</span>
                     <span x-show="phase === 'saving'">Saving…</span>
                 </button>
                 <button wire:click="$set('showForm', false)"
-                        :disabled="phase === 'uploading' || phase === 'saving'"
+                        :disabled="phase === 'uploading-pdf' || phase === 'uploading-cover' || phase === 'saving'"
                         class="bg-base-elevated hover:bg-base-hover text-ink-secondary font-mono text-sm px-4 py-2.5 rounded-lg transition-colors disabled:opacity-50">
                     Cancel
                 </button>
