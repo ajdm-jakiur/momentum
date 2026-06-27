@@ -149,9 +149,7 @@ window.pdfReader = function(pdfUrl, savedPage) {
             for (let attempt = 1; attempt <= MAX; attempt++) {
                 this.retryCount = attempt;
                 try {
-                    const task = pdfjsLib.getDocument({
-                        url: pdfUrl,
-                    });
+                    const task = pdfjsLib.getDocument({ url: pdfUrl });
                     _pdfDoc = await task.promise;
                     this.totalPages = _pdfDoc.numPages;
                     await this.renderPage(this.currentPage);

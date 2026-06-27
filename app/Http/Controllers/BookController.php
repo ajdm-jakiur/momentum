@@ -6,10 +6,8 @@ use App\Models\Book;
 use Aws\S3\S3Client;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use Symfony\Component\HttpFoundation\BinaryFileResponse;
 
 class BookController extends Controller
 {
@@ -87,71 +85,30 @@ class BookController extends Controller
         ]);
     }
 
-    public function serve(Book $book): StreamedResponse
+    public function serve(Book $book): \Illuminate\Http\RedirectResponse
     {
         abort_unless((int) $book->user_id === (int) auth()->id(), 403);
 
-        $fileSize    = (int) $book->file_size;
-        $rangeHeader = request()->header('Range');
-
-        if ($rangeHeader && $fileSize > 0 && preg_match('/bytes=(\d*)-(\d*)/', $rangeHeader, $m)) {
-            $start  = $m[1] !== '' ? (int) $m[1] : 0;
-            $end    = $m[2] !== '' ? (int) $m[2] : $fileSize - 1;
-            $end    = min($end, $fileSize - 1);
-            $length = $end - $start + 1;
-
-            return response()->stream(function () use ($book, $start, $end) {
-                while (ob_get_level()) ob_end_clean();
-                set_time_limit(0);
-
-                $s3 = new S3Client([
-                    'version'                 => 'latest',
-                    'region'                  => 'auto',
-                    'endpoint'                => config('filesystems.disks.r2.endpoint'),
-                    'credentials'             => [
-                        'key'    => config('filesystems.disks.r2.key'),
-                        'secret' => config('filesystems.disks.r2.secret'),
-                    ],
-                    'use_path_style_endpoint' => true,
-                ]);
-
-                $result = $s3->getObject([
-                    'Bucket' => config('filesystems.disks.r2.bucket'),
-                    'Key'    => $book->r2_key,
-                    'Range'  => "bytes=$start-$end",
-                ]);
-
-                $stream = $result['Body']->detach();
-                while (!feof($stream)) {
-                    echo fread($stream, 512 * 1024);
-                    flush();
-                }
-                fclose($stream);
-            }, 206, [
-                'Content-Type'   => $book->mime_type ?: 'application/pdf',
-                'Content-Range'  => "bytes $start-$end/$fileSize",
-                'Content-Length' => $length,
-                'Accept-Ranges'  => 'bytes',
-                'Cache-Control'  => 'private, max-age=3600',
-            ]);
-        }
-
-        return response()->stream(function () use ($book) {
-            while (ob_get_level()) ob_end_clean();
-            set_time_limit(0);
-
-            $stream = Storage::disk('r2')->readStream($book->r2_key);
-            while (!feof($stream)) {
-                echo fread($stream, 512 * 1024);
-                flush();
-            }
-            fclose($stream);
-        }, 200, [
-            'Content-Type'        => $book->mime_type ?: 'application/pdf',
-            'Content-Disposition' => 'inline; filename="'.basename($book->r2_key).'"',
-            'Content-Length'      => $fileSize > 0 ? $fileSize : null,
-            'Cache-Control'       => 'private, max-age=3600',
-            'Accept-Ranges'       => 'bytes',
+        $s3 = new S3Client([
+            'version'                 => 'latest',
+            'region'                  => 'auto',
+            'endpoint'                => config('filesystems.disks.r2.endpoint'),
+            'credentials'             => [
+                'key'    => config('filesystems.disks.r2.key'),
+                'secret' => config('filesystems.disks.r2.secret'),
+            ],
+            'use_path_style_endpoint' => true,
         ]);
+
+        $cmd = $s3->getCommand('GetObject', [
+            'Bucket'                     => config('filesystems.disks.r2.bucket'),
+            'Key'                        => $book->r2_key,
+            'ResponseContentType'        => 'application/pdf',
+            'ResponseContentDisposition' => 'inline',
+        ]);
+
+        $presigned = $s3->createPresignedRequest($cmd, '+60 minutes');
+
+        return redirect((string) $presigned->getUri());
     }
 }

@@ -5,6 +5,7 @@ namespace App\Livewire\Books;
 use App\Livewire\FullPageComponent;
 use App\Models\Book;
 use App\Models\Sector;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Attributes\Computed;
 use Livewire\WithPagination;
 
