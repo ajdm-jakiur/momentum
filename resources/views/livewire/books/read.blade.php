@@ -150,9 +150,7 @@ window.pdfReader = function(pdfUrl, savedPage) {
                 this.retryCount = attempt;
                 try {
                     const task = pdfjsLib.getDocument({
-                        url:           pdfUrl,
-                        disableRange:  true,  // server returns 200 not 206
-                        disableStream: true,  // fetch full file before parsing — more stable
+                        url: pdfUrl,
                     });
                     _pdfDoc = await task.promise;
                     this.totalPages = _pdfDoc.numPages;
@@ -186,12 +184,16 @@ window.pdfReader = function(pdfUrl, savedPage) {
             const page      = await _pdfDoc.getPage(num);
             const container = this.$refs.canvasContainer;
             const vp0       = page.getViewport({ scale: 1 });
-            const scale     = Math.min(container.clientWidth / vp0.width, container.clientHeight / vp0.height, 2);
+            const dpr       = window.devicePixelRatio || 1;
+            const cssScale  = Math.min(container.clientWidth / vp0.width, 2);
+            const scale     = cssScale * dpr;
             const viewport  = page.getViewport({ scale });
             const canvas    = this.$refs.canvas;
             const ctx       = canvas.getContext('2d');
-            canvas.width    = viewport.width;
-            canvas.height   = viewport.height;
+            canvas.width        = viewport.width;
+            canvas.height       = viewport.height;
+            canvas.style.width  = (viewport.width  / dpr) + 'px';
+            canvas.style.height = (viewport.height / dpr) + 'px';
             _renderTask     = page.render({ canvasContext: ctx, viewport });
             await _renderTask.promise;
             _renderTask = null;
