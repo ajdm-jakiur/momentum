@@ -67,6 +67,23 @@
                      return res.json();
                  },
 
+                 async uploadCoverServer(file) {
+                     const csrf = document.querySelector('meta[name=csrf-token]').content;
+                     const form = new FormData();
+                     form.append('cover', file);
+                     const res = await fetch('{{ route('books.upload-cover') }}', {
+                         method: 'POST',
+                         credentials: 'include',
+                         headers: { 'X-CSRF-TOKEN': csrf, 'Accept': 'application/json' },
+                         body: form,
+                     });
+                     if (!res.ok) {
+                         const err = await res.json().catch(() => ({}));
+                         throw new Error('Cover upload failed: ' + (err.message || res.status));
+                     }
+                     return res.json(); // { key, mime }
+                 },
+
                  putR2(url, file, mimeType, onProgress) {
                      return new Promise((resolve, reject) => {
                          const xhr = new XMLHttpRequest();
@@ -90,15 +107,15 @@
                          const { url: pdfUrl, key: pdfKey } = await this.presign(this.selectedFileName, 'application/pdf', this.selectedFileSize);
                          await this.putR2(pdfUrl, this.selectedFile, 'application/pdf', p => this.progress = p);
 
-                         // Upload cover directly to R2 (if selected)
+                         // Upload cover through server (small file, avoids R2 CORS)
                          let coverKey = '', coverMime = '';
                          if (this.selectedCover) {
                              this.phase = 'uploading-cover';
                              this.progress = 0;
-                             const { url: covUrl, key: covKey } = await this.presign(this.selectedCover.name, this.selectedCoverMime, this.selectedCover.size);
-                             await this.putR2(covUrl, this.selectedCover, this.selectedCoverMime, p => this.progress = p);
+                             const { key: covKey, mime: covMime } = await this.uploadCoverServer(this.selectedCover);
+                             this.progress = 100;
                              coverKey  = covKey;
-                             coverMime = this.selectedCoverMime;
+                             coverMime = covMime;
                          }
 
                          // Save DB record via Livewire

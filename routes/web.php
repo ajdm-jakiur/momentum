@@ -60,6 +60,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('books/{book}/serve', [BookController::class, 'serve'])->name('books.serve');
     Route::get('books/{book}/cover', [BookController::class, 'cover'])->name('books.cover');
     Route::post('books/presign', [BookController::class, 'presign'])->name('books.presign');
+    Route::post('books/upload-cover', [BookController::class, 'uploadCover'])->name('books.upload-cover');
 
     Route::get('tasks', TasksIndex::class)->name('tasks.index');
 

@@ -66,6 +66,34 @@ class BookController extends Controller
         }
     }
 
+    public function uploadCover(Request $request): JsonResponse
+    {
+        $request->validate([
+            'cover' => 'required|file|mimes:jpeg,png,webp|max:5120',
+        ]);
+
+        try {
+            $file = $request->file('cover');
+            $ext  = match($file->getMimeType()) {
+                'image/jpeg' => 'jpg',
+                'image/png'  => 'png',
+                'image/webp' => 'webp',
+                default      => 'jpg',
+            };
+            $key  = 'covers/'.auth()->id().'/'.uniqid('', true).'.'.$ext;
+
+            Storage::disk('r2')->put($key, $file->get(), [
+                'ContentType' => $file->getMimeType(),
+            ]);
+
+            return response()->json(['key' => $key, 'mime' => $file->getMimeType()]);
+
+        } catch (\Throwable $e) {
+            \Log::error('[uploadCover] failed: '.$e->getMessage());
+            return response()->json(['message' => 'Cover upload failed: '.$e->getMessage()], 500);
+        }
+    }
+
     public function cover(Book $book): StreamedResponse
     {
         abort_unless((int) $book->user_id === (int) auth()->id(), 403);
